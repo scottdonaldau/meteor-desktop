@@ -12,6 +12,7 @@
     "rebuildNativeNodeModules": false,
     "webAppStartupTimeout": 60000,
     "exposeLocalFilesystem": false,
+    "experimentalLocalStorage": true,
     "window": {
         "icon": "@assets/meteor.png",
         "_windows": {
@@ -28,8 +29,7 @@
                 "width": 800,
                 "height": 600
             }
-        },
-        "meteor-desktop-localstorage": "0.0.11"
+        }
     },
     "dependencies": {},
     "packageJsonFields": {

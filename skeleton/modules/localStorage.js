@@ -6,7 +6,7 @@ import path from 'path';
 /**
  * Utility to manage Chrome's local storage files.
  * Its purpose is to preserve local storage data even though every time the app starts a
- * different port is used and a new black local storage file is created.
+ * different port is used and a new blank local storage file is created.
  * It tries to achieve that just by manipulating the files (copying/renaming/deleting).
  *
  * @constructor
@@ -87,7 +87,8 @@ export default class LocalStorage {
                     fs.unlinkSync(involvedFiles[0]);
                     fs.unlinkSync(involvedFiles[1]);
                 } catch (e) {
-                    this.log.error('could not delete old local storage file, aborting');
+                    this.log.error('could not delete old local storage file, aborting, the' +
+                        ' storage may be outdated');
                     return;
                 }
             }
@@ -139,4 +140,3 @@ export default class LocalStorage {
         });
     }
 }
-

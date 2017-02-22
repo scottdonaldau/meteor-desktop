@@ -185,4 +185,46 @@ describe('desktop', () => {
             expect(text).to.equal('Welcome to Meteor!');
         }).timeout(10 * 60000);
     });
+
+    describe('build installer', () => {
+        let exitStub;
+        let app;
+
+        after(async () => {
+            exitStub.restore();
+            if (app && app.isRunning()) {
+                await app.stop();
+            }
+        });
+
+        it('should create a build', async () => {
+            exitStub = sinon.stub(process, 'exit', () => {
+                try {
+                    console.log(fs.readFileSync('meteor.log', 'utf8'));
+                } catch (e) {
+                    // Nothing to do.
+                }
+                process.exit(1);
+            });
+            // Load plugins directly from the package instead of those published to atmosphere.
+            process.env.METEOR_PACKAGE_DIRS = path.resolve(path.join(__dirname, '..', '..', 'plugins'));
+            process.env.MONGO_URL = 'none';
+            MeteorDesktop = meteorDesktop(
+                appDir,
+                appDir,
+                {
+                    ddpUrl: 'http://127.0.0.1:3080',
+                    scaffold: true,
+                    build: true,
+                    output: appDir,
+                    skipMobileBuild: !!process.env.TRAVIS,
+                    forceCordovaBuild: !!process.env.TRAVIS
+                }
+            );
+            // Build the app.
+            await MeteorDesktop.buildInstaller();
+        }).timeout(10 * 60000);
+    });
+
+
 });
