@@ -47,9 +47,11 @@ class App {
             this.l.debug(`skeleton version ${this.settings.meteorDesktopVersion}`);
         }
 
-        // To make desktop.asar's downloaded through HCP work, we need to provide them a path to
+        // To make desktop.asar's downloaded through HCP work, we need to provide it a path to
         // node_modules.
         const nodeModulesPath = [__dirname, 'node_modules'];
+
+        // TODO: explain this
         if (!this.isProduction()) {
             nodeModulesPath.splice(1, 0, '..');
         }
@@ -60,7 +62,7 @@ class App {
             return;
         }
 
-        // This is need for OSX - check Electron docs for more info.
+        // This is needed for OSX - check Electron docs for more info.
         if ('builderOptions' in this.settings && this.settings.builderOptions.appId) {
             app.setAppUserModelId(this.settings.builderOptions.appId);
         }

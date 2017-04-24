@@ -27,12 +27,9 @@ export default class LocalStorage {
         this.storageJournalPath = port =>
             path.join(this.localStoragePath, `${this.filePrefix}${port}.localstorage-journal`);
 
-        if (appSettings.experimentalLocalStorage) {
-            this.log.info('experimental local storage enabled');
-            eventsBus.on('beforeLoadUrl', (port, lastPort = null) => {
-                this.prepare(port, lastPort);
-            });
-        }
+        eventsBus.on('beforeLoadUrl', (port, lastPort = null) => {
+            this.prepare(port, lastPort);
+        });
     }
 
     /**
@@ -113,6 +110,8 @@ export default class LocalStorage {
                 }
             }
             this.log.verbose(`storage from port ${latestPort} migrated to ${port}`);
+        } else {
+            this.log.verbose('port did not change, no migration needed');
         }
 
         this.deleteOthers(port, lastPort, files);
