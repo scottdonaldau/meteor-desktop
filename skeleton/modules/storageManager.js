@@ -4,7 +4,7 @@ import fs from 'fs-plus';
 import fse from 'fs-extra';
 import path from 'path';
 import rimraf from 'rimraf';
-import { findNewestFileOrDirectory, removePaths, rimrafPromisfied } from './storageManager/ioHelper';
+import { findNewestFileOrDirectory, removePaths, rimrafPromisfied, ioOperationWithRetries, batchIoOperationWithRetries } from './storageManager/ioHelper';
 
 class Storage {
     constructor(dir) {
@@ -56,7 +56,7 @@ export default class StorageManager {
 
         eventsBus.on('beforeLoadUrl', (port, lastPort = null) => this.manage(port, lastPort));
 
-        this.portMatcher = /(?:\.\d+)_(\d+)/g;
+        this.portMatcher = /\.\d+_(\d+)/g;
     }
 
     manage(port, lastPort = null) {
@@ -77,13 +77,32 @@ export default class StorageManager {
             const targetPaths = storage.pathGenerators.map(pathGenerator => path.join(storage.path, pathGenerator(port)));
             console.log('targetPaths', targetPaths);
 
+            let newestPort = this.portMatcher.exec(newest);
+            this.portMatcher.lastIndex = 0;
+            newestPort = newestPort[1];
+
+            const newestPaths = storage.pathGenerators.map(pathGenerator => path.join(storage.path, pathGenerator(newestPort)));
+            //console.log(newestPath);
+
+            const pathPairs = newestPaths.map((path, index) => {
+                return [path, targetPaths[index]];
+            });
+            console.log(pathPairs);
+
             removePaths(targetPaths, rimrafPromisfied)
                 .catch((error) => {
                     console.log(error);
                 })
+                .then(
+                    () => batchIoOperationWithRetries('move', undefined, undefined, ioOperationWithRetries, pathPairs)
+                )
+                .catch((error) => {
+                    console.log(error);
+                })
                 .then(() => {
-                    resolve();
+                    resolve()
                 });
+
 
             /*
             this.removeFilesIfPresent(involvedFiles.slice(0, 2))
