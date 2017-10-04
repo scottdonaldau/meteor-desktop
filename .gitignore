@@ -1,6 +1,6 @@
 node_modules
 .idea
-dist
+#dist
 tests/_tmp_
 .npm
 .versions
